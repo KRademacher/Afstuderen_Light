@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Timers;
 using Grpc.Core;
 using Server;
 using Weatherstation;
@@ -8,7 +9,7 @@ namespace Server_gRPC
     class Program
     {
         const int port = 50051;
-        private static System.Timers.Timer timer;
+        private static Timer timer;
 
         static void Main(string[] args)
         {
@@ -29,14 +30,14 @@ namespace Server_gRPC
         private static void SetTimer(WeatherDataSender.WeatherDataSenderClient client)
         {
             // Create a timer with a one second interval.
-            timer = new System.Timers.Timer(1000);
+            timer = new Timer(1000);
             // Hook up the Elapsed event for the timer. 
             timer.Elapsed += (sender, e) => OnTimerElapsed(sender, e, client);
             timer.AutoReset = true;
             timer.Enabled = true;
         }
 
-        private static void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e, WeatherDataSender.WeatherDataSenderClient client)
+        private static void OnTimerElapsed(object sender, ElapsedEventArgs e, WeatherDataSender.WeatherDataSenderClient client)
         {
             WeatherData weatherData = new WeatherData();
 
