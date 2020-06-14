@@ -1,0 +1,23 @@
+﻿syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package weatherstation;
+
+service WeatherDataSender {
+	//Sends the data
+	rpc SendData (DataRequest) returns (DataReply) {}
+}
+
+message DataRequest {
+	google.protobuf.Timestamp time = 1;
+	float temperature = 2;
+	float humidity = 3;
+	string windDirection = 4;
+	float windspeed = 5;
+	int32 atmPressure = 6;
+}
+
+message DataReply {
+	string message = 1;
+}
