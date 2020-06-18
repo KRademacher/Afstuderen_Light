@@ -9,6 +9,7 @@ service WeatherDataSender {
 	rpc SendData (DataRequest) returns (DataReply) {}
 }
 
+//The weather data that will be send to the receiver
 message DataRequest {
 	google.protobuf.Timestamp time = 1;
 	float temperature = 2;
@@ -18,6 +19,7 @@ message DataRequest {
 	int32 atmPressure = 6;
 }
 
+//The reply that will be send from the receiver
 message DataReply {
 	string message = 1;
 }

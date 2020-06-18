@@ -15,8 +15,8 @@ namespace Server_gRPC
 
         static void Main(string[] args)
         {
+            //Create the channel and client to send the data from.
             Channel channel = new Channel("127.0.0.1:" + port, ChannelCredentials.Insecure);
-
             var client = new WeatherDataSender.WeatherDataSenderClient(channel);
 
             SetTimer(client);
@@ -31,10 +31,11 @@ namespace Server_gRPC
 
         private static void SetTimer(WeatherDataSender.WeatherDataSenderClient client)
         {
-            stopwatch = new Stopwatch();
-            // Create a timer with a one second interval.
+            //Create a timer with a one second interval and a stopwatch for monitoring.
             timer = new Timer(1000);
-            // Hook up the Elapsed event for the timer. 
+            stopwatch = new Stopwatch();
+
+            //Hook up the Elapsed event for the timer. 
             timer.Elapsed += (sender, e) => OnTimerElapsed(sender, e, client);
             timer.AutoReset = true;
             timer.Enabled = true;
@@ -42,10 +43,9 @@ namespace Server_gRPC
 
         private static void OnTimerElapsed(object sender, ElapsedEventArgs e, WeatherDataSender.WeatherDataSenderClient client)
         {
+            //Create new random data.
             WeatherData weatherData = new WeatherData();
-
-            stopwatch.Start();
-            DataReply response = client.SendData(new DataRequest
+            DataRequest request = new DataRequest()
             {
                 Time = weatherData.Timestamp,
                 Temperature = weatherData.Temperature,
@@ -53,8 +53,13 @@ namespace Server_gRPC
                 WindDirection = weatherData.WindDirection,
                 Windspeed = weatherData.WindSpeed,
                 AtmPressure = weatherData.AtmosphericPressure
-            });
+            };
 
+            //Start the stopwatch and send the data.
+            stopwatch.Start();
+            DataReply response = client.SendData(request);
+
+            //Stop the stopwatch when a response is received. Log the response and reset the timer.
             stopwatch.Stop();
             Console.WriteLine("Response: " + response.Message);
             Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds} ms");

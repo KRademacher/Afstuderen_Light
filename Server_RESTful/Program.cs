@@ -15,6 +15,7 @@ namespace Server_RESTful
 
         static void Main(string[] args)
         {
+            //Create a new HTTPClient to POST from.
             HttpClient client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:3000/api/");
             client.DefaultRequestHeaders.Accept.Clear();
@@ -33,8 +34,11 @@ namespace Server_RESTful
 
         private static void SetTimer(HttpClient client)
         {
-            stopwatch = new Stopwatch();
+            //Create a timer with a one second interval and a stopwatch for monitoring.
             timer = new Timer(1000);
+            stopwatch = new Stopwatch();
+
+            //Hook up the Elapsed event for the timer. 
             timer.Elapsed += async (sender, e) => await OnTimerElapsed(sender, e, client);
             timer.AutoReset = true;
             timer.Enabled = true;
@@ -42,21 +46,24 @@ namespace Server_RESTful
 
         private static async Task OnTimerElapsed(object sender, ElapsedEventArgs e, HttpClient client)
         {
+            //Create new random data.
             WeatherData weatherData = new WeatherData();
 
+            //Start the stopwatch and send a JSON version of the data. Wait for the response.
             stopwatch.Start();
             var responseMessage = await client.PostAsJsonAsync("weather", weatherData);
 
             if (responseMessage.IsSuccessStatusCode)
             {
+                //Stop stopwatch and process reponse.
                 stopwatch.Stop();
-                //Process reponse.
                 string response = await responseMessage.Content.ReadAsStringAsync();
                 Console.WriteLine($"Response: {response}");
                 Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds} ms");
             }
             else
             {
+                //Stop stopwatch and log the timestamp of the failed package.
                 stopwatch.Stop();
                 Console.WriteLine("Error sending data package: " + weatherData.Timestamp);
             }

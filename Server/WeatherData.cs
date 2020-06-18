@@ -5,6 +5,8 @@ namespace Server
 {
     public class WeatherData
     {
+        private readonly Random random = new Random();
+
         public Timestamp Timestamp { get; set; }
         public float Temperature { get; set; }
         public float Humidity { get; set; }
@@ -12,8 +14,7 @@ namespace Server
         public float WindSpeed { get; set; }
         public int AtmosphericPressure { get; set; }
 
-        private readonly Random random = new Random();
-
+        //Constructor that creates random data to send.
         public WeatherData()
         {
             Timestamp = Timestamp.FromDateTime(DateTime.UtcNow);
@@ -24,7 +25,7 @@ namespace Server
             AtmosphericPressure = random.Next(800, 1001);
         }
 
-        //Don't look at this, it's ugly.
+        //Switch case for random wind direction.
         private string PickWindDirection(int i)
         {
             switch (i)
