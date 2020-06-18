@@ -13,24 +13,23 @@ namespace Server_RESTful
 
         static void Main(string[] args)
         {
-            MainAsync().Wait();
+            HttpClient client = new HttpClient();
+            client.BaseAddress = new Uri("http://localhost:3000/api/");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            SetTimer(client);
+
+            Console.WriteLine("\nPress the Enter key to exit the application...\n");
+
+            Console.ReadLine();
+            timer.Stop();
+            timer.Dispose();
+
+            Console.WriteLine("Terminating the application...");
         }
 
-        static async Task MainAsync()
-        {
-
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri("https://localhost:3000/");
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-                await SetTimer(client);
-
-            }
-        }
-
-        private static async Task SetTimer(HttpClient client)
+        private static void SetTimer(HttpClient client)
         {
             timer = new Timer(1000);
             timer.Elapsed += async (sender, e) => await OnTimerElapsed(sender, e, client);
@@ -41,15 +40,17 @@ namespace Server_RESTful
         private static async Task OnTimerElapsed(object sender, ElapsedEventArgs e, HttpClient client)
         {
             WeatherData weatherData = new WeatherData();
-
-            HttpResponseMessage responseMessage = await client.PostAsJsonAsync("api", weatherData);
+            var responseMessage = await client.PostAsJsonAsync("weather", weatherData);
 
             if (responseMessage.IsSuccessStatusCode)
             {
-                Uri apiUri = responseMessage.Headers.Location;
-
                 //Process reponse.
-                Console.WriteLine(responseMessage.Content);
+                string response = await responseMessage.Content.ReadAsStringAsync();
+                Console.WriteLine("Response: " + response);
+            }
+            else
+            {
+                Console.WriteLine("Error sending data package: " + weatherData.Timestamp);
             }
         }
     }
