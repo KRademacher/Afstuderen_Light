@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Timers;
 using Grpc.Core;
 using Server;
@@ -10,6 +11,7 @@ namespace Server_gRPC
     {
         const int port = 50051;
         private static Timer timer;
+        private static Stopwatch stopwatch;
 
         static void Main(string[] args)
         {
@@ -29,6 +31,7 @@ namespace Server_gRPC
 
         private static void SetTimer(WeatherDataSender.WeatherDataSenderClient client)
         {
+            stopwatch = new Stopwatch();
             // Create a timer with a one second interval.
             timer = new Timer(1000);
             // Hook up the Elapsed event for the timer. 
@@ -41,6 +44,7 @@ namespace Server_gRPC
         {
             WeatherData weatherData = new WeatherData();
 
+            stopwatch.Start();
             DataReply response = client.SendData(new DataRequest
             {
                 Time = weatherData.Timestamp,
@@ -51,7 +55,10 @@ namespace Server_gRPC
                 AtmPressure = weatherData.AtmosphericPressure
             });
 
+            stopwatch.Stop();
             Console.WriteLine("Response: " + response.Message);
+            Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds} ms");
+            stopwatch.Reset();
         }
     }
 }

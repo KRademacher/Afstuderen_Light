@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Server_RESTful
     class Program
     {
         private static Timer timer;
+        private static Stopwatch stopwatch;
 
         static void Main(string[] args)
         {
@@ -31,6 +33,7 @@ namespace Server_RESTful
 
         private static void SetTimer(HttpClient client)
         {
+            stopwatch = new Stopwatch();
             timer = new Timer(1000);
             timer.Elapsed += async (sender, e) => await OnTimerElapsed(sender, e, client);
             timer.AutoReset = true;
@@ -40,18 +43,24 @@ namespace Server_RESTful
         private static async Task OnTimerElapsed(object sender, ElapsedEventArgs e, HttpClient client)
         {
             WeatherData weatherData = new WeatherData();
+
+            stopwatch.Start();
             var responseMessage = await client.PostAsJsonAsync("weather", weatherData);
 
             if (responseMessage.IsSuccessStatusCode)
             {
+                stopwatch.Stop();
                 //Process reponse.
                 string response = await responseMessage.Content.ReadAsStringAsync();
-                Console.WriteLine("Response: " + response);
+                Console.WriteLine($"Response: {response}");
+                Console.WriteLine($"Response time: {stopwatch.ElapsedMilliseconds} ms");
             }
             else
             {
+                stopwatch.Stop();
                 Console.WriteLine("Error sending data package: " + weatherData.Timestamp);
             }
+            stopwatch.Reset();
         }
     }
 }
